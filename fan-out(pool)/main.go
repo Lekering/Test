@@ -18,12 +18,15 @@ func generate() chan int {
 }
 
 func main() {
-	for v := range Pool(generate(), 100, Math) {
+	for v := range Pool(generate(), 14, Math) {
 		fmt.Println(v)
 	}
 }
 
-func Pool[T any](in chan T, numberWorker int, f func(T) T) <-chan T {
+func Pool[T any](in chan T,
+	numberWorker int,
+	f func(T) T) <-chan T {
+
 	outCh := make(chan T)
 	wg := &sync.WaitGroup{}
 	go func() {
@@ -39,7 +42,10 @@ func Pool[T any](in chan T, numberWorker int, f func(T) T) <-chan T {
 	return outCh
 }
 
-func Work[T any](in, out chan T, wg *sync.WaitGroup, f func(T) T) {
+func Work[T any](in,
+	out chan T,
+	wg *sync.WaitGroup,
+	f func(T) T) {
 	defer wg.Done()
 
 	for v := range in {
