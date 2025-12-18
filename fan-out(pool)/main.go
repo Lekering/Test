@@ -42,10 +42,10 @@ func Pool[T any](in chan T,
 	return outCh
 }
 
-func Work[T any](in,
-	out chan T,
+func Work[T any](in, out chan T,
 	wg *sync.WaitGroup,
 	f func(T) T) {
+
 	defer wg.Done()
 
 	for v := range in {
