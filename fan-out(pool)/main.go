@@ -34,7 +34,6 @@ func Pool[T any](in chan T,
 			wg.Add(1)
 			go Work(in, outCh, wg, f)
 		}
-		// Ждем завершения всех горутин перед закрытием канала
 		wg.Wait()
 		close(outCh)
 	}()

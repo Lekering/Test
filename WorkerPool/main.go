@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var maxMessagers = 20
+var maxMessagers = 5
 var counter = 0
 
 type Message struct {
