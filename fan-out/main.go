@@ -19,7 +19,6 @@ func main() {
 	outChans := SplitChan(in, 2)
 
 	for _, out := range outChans {
-
 		wg.Add(1)
 
 		go func(out <-chan int) {
