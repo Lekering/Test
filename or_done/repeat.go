@@ -1,7 +1,7 @@
 package main
 
-func OrDoneRepeat(inCh chan int, closeCh chan struct{}) chan int {
-	outCh := make(chan int)
+func OrDoneRepeat[T any](inCh chan T, closeCh chan struct{}) chan T {
+	outCh := make(chan T)
 
 	go func() {
 		defer close(outCh)
