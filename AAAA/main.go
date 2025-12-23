@@ -42,3 +42,7 @@ func main_() {
 	}
 
 }
+
+func main() {
+
+}
