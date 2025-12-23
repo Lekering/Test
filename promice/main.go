@@ -44,7 +44,7 @@ func (p *Promice[T]) Then(true func(T), false func(error)) {
 func main() {
 	EasyFunc := func() (int, error) {
 		time.Sleep(time.Second)
-		return 0, fmt.Errorf("404HUILA_HAHAHAH")
+		return 5, nil
 	}
 
 	prom := NewProm(EasyFunc)
