@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"os"
 	"sync"
 )
 
@@ -40,5 +41,12 @@ func main_() {
 	for v := range limitedNum {
 		fmt.Println(v)
 	}
-
+}
+func main() {
+	s, sep := "", ""
+	for _, arg := range os.Args[1:] {
+		s += sep + arg
+		sep = " "
+	}
+	fmt.Println(s)
 }
