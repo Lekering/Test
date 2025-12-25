@@ -2,108 +2,201 @@ package main
 
 import (
 	"fmt"
-	"strings"
-	"time"
+	"sort"
+	"sync"
 )
 
-// Stage описывает одну стадию конвейера: читает из входного канала и пишет в выходной.
-type Stage func(<-chan string) <-chan string
+// ExecutePipeline запускает конвейерную обработку
+func ExecutePipeline(freeFlowJobs ...job) {
+	wg := &sync.WaitGroup{}
+	in := make(chan interface{})
 
-// echoStage имитирует echo / cat: из набора строк создаёт исходный канал.
-func echoStage(lines ...string) <-chan string {
-	out := make(chan string)
+	for _, j := range freeFlowJobs {
+		out := make(chan interface{})
+		wg.Add(1)
+		go func(jFunc job, input, output chan interface{}) {
+			defer wg.Done()
+			defer close(output)
+			jFunc(input, output)
+		}(j, in, out)
+		in = out
+	}
 
-	go func() {
-		defer close(out)
-		for _, line := range lines {
-			out <- line
+	wg.Wait()
+}
+
+// SelectUsers читает email'ы и возвращает уникальных пользователей
+func SelectUsers(in, out chan any) {
+	wg := &sync.WaitGroup{}
+	seenUsers := &sync.Map{}
+
+	for email := range in {
+		emailStr := email.(string)
+		wg.Add(1)
+
+		go func(e string) {
+			defer wg.Done()
+			user := GetUser(e)
+
+			// Проверяем, видели ли мы этого пользователя
+			if _, loaded := seenUsers.LoadOrStore(user.ID, true); !loaded {
+				out <- user
+			}
+		}(emailStr)
+	}
+
+	wg.Wait()
+}
+
+// SelectMessages получает сообщения пользователей батчами
+func SelectMessages(in, out chan interface{}) {
+	wg := &sync.WaitGroup{}
+	batchSize := 2
+	batch := make([]User, 0, batchSize)
+	mu := &sync.Mutex{}
+
+	processBatch := func(users []User) {
+		wg.Add(1)
+		go func(u []User) {
+			defer wg.Done()
+			messages := GetMessages(u...)
+			for _, msgID := range messages {
+				out <- msgID
+			}
+		}(users)
+	}
+
+	for user := range in {
+		u := user.(User)
+		mu.Lock()
+		batch = append(batch, u)
+
+		if len(batch) >= batchSize {
+			processBatch(batch)
+			batch = make([]User, 0, batchSize)
 		}
-	}()
+		mu.Unlock()
+	}
 
-	return out
+	// Обработать оставшиеся элементы
+	if len(batch) > 0 {
+		processBatch(batch)
+	}
+
+	wg.Wait()
 }
 
-// grepStage имитирует grep pattern: пропускает только строки, содержащие подстроку pattern.
-func grepStage(pattern string) Stage {
-	return func(in <-chan string) <-chan string {
-		out := make(chan string)
+// CheckSpam проверяет сообщения на спам с ограничением параллелизма
+func CheckSpam(in, out chan interface{}) {
+	wg := &sync.WaitGroup{}
+	semaphore := make(chan struct{}, 5) // Ограничение в 5 параллельных запросов
 
-		go func() {
-			defer close(out)
-			for line := range in {
-				if strings.Contains(line, pattern) {
-					out <- line
-				}
+	for msgID := range in {
+		msg := msgID.(MsgID)
+		wg.Add(1)
+
+		go func(m MsgID) {
+			defer wg.Done()
+
+			semaphore <- struct{}{} // Захватываем слот
+			hasSpam := HasSpam(m)
+			<-semaphore // Освобождаем слот
+
+			out <- MsgData{
+				ID:      m,
+				HasSpam: hasSpam,
 			}
-		}()
+		}(msg)
+	}
 
-		return out
+	wg.Wait()
+}
+
+// CombineResults собирает и сортирует результаты
+func CombineResults(in, out chan interface{}) {
+	results := make([]MsgData, 0)
+
+	for data := range in {
+		msgData := data.(MsgData)
+		results = append(results, msgData)
+	}
+
+	// Сортировка: сначала по HasSpam (true первые), затем по ID
+	sort.Slice(results, func(i, j int) bool {
+		if results[i].HasSpam != results[j].HasSpam {
+			return results[i].HasSpam
+		}
+		return results[i].ID < results[j].ID
+	})
+
+	for _, result := range results {
+		out <- fmt.Sprintf("%t %d", result.HasSpam, result.ID)
 	}
 }
 
-// toUpperStage имитирует tr a-z A-Z: переводит строку в верхний регистр.
-func toUpperStage() Stage {
-	return func(in <-chan string) <-chan string {
-		out := make(chan string)
+// Типы данных для примера (нужно заменить на реальные)
+type job func(in, out chan interface{})
 
-		go func() {
-			defer close(out)
-			for line := range in {
-				out <- strings.ToUpper(line)
-			}
-		}()
-
-		return out
-	}
+type User struct {
+	ID    int
+	Email string
 }
 
-// prefixStage добавляет префикс к каждой строке.
-func prefixStage(prefix string) Stage {
-	return func(in <-chan string) <-chan string {
-		out := make(chan string)
+type MsgID int
 
-		go func() {
-			defer close(out)
-			for line := range in {
-				out <- prefix + line
-			}
-		}()
-
-		return out
-	}
+type MsgData struct {
+	ID      MsgID
+	HasSpam bool
 }
 
-// pipeline последовательно соединяет несколько стадий, как команды через | в shell.
-func pipeline(in <-chan string, stages ...Stage) <-chan string {
-	out := in
-	for _, stage := range stages {
-		out = stage(out)
-	}
-	return out
-}
-
+// Пример запуска
 func main() {
-	// Имитация Unix-пайплайна:
-	// echo "error: disk full" "ok: done" "error: network" |
-	//   grep "error" |
-	//   tr a-z A-Z |
-	//   prefix "[LOG] "
-
-	source := echoStage(
-		"error: disk full",
-		"info: starting service",
-		"ok: done",
-		"error: network unreachable",
-	)
-
-	result := pipeline(
-		source,
-		grepStage("error"),
-		toUpperStage(),
-		prefixStage("[LOG] "),
-	)
-
-	for line := range result {
-		fmt.Println(time.Now().Format("15:04:05"), line)
+	// Входные данные - email'ы пользователей
+	inputData := []string{
+		"user1@example.com",
+		"user2@example.com",
+		"batman@mail.ru",
+		"bruce.wayne@mail.ru", // алиас к batman
+		"user3@example.com",
 	}
+
+	// Создаем генератор входных данных
+	dataSource := func(in, out chan interface{}) {
+		for _, email := range inputData {
+			out <- email
+		}
+	}
+
+	// Создаем приемник результатов
+	dataSink := func(in, out chan interface{}) {
+		for result := range in {
+			fmt.Println(result)
+		}
+	}
+
+	// Запускаем pipeline
+	ExecutePipeline(
+		job(dataSource),
+		job(SelectUsers),
+		job(SelectMessages),
+		job(CheckSpam),
+		job(CombineResults),
+		job(dataSink),
+	)
+}
+
+// Заглушки для функций API (замените на реальные)
+func GetUser(email string) User {
+	// Симуляция задержки
+	return User{ID: 1, Email: email}
+}
+
+func GetMessages(users ...User) []MsgID {
+	// Симуляция задержки
+	return []MsgID{1, 2, 3}
+}
+
+func HasSpam(msgID MsgID) bool {
+	// Симуляция задержки
+	return false
 }
