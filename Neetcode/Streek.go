@@ -37,7 +37,3 @@ func longestConsecutive(nums ...int) int {
 	fmt.Println(res)
 	return res
 }
-
-func main() {
-
-}
