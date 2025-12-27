@@ -9,7 +9,7 @@ import (
 func isPalindrome(s string) bool {
 	strRune := []rune(s)
 
-	left, right := 0, len(s)-1
+	left, right := 0, len(strRune)-1
 
 	for left < right {
 		for left < right && !isVal(strRune[left]) {
@@ -29,7 +29,4 @@ func isPalindrome(s string) bool {
 
 func isVal(r rune) bool {
 	return unicode.IsDigit(r) || unicode.IsLetter(r)
-}
-
-func main() {
 }
