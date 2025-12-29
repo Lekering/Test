@@ -2,11 +2,6 @@ package main
 
 import "fmt"
 
-type Repository interface {
-	GetData(id int) (string, error)
-	SaveData(id int, data string) error
-}
-
 func longestConsecutive(nums ...int) int {
 	res := 0
 	if len(nums) == 0 {
