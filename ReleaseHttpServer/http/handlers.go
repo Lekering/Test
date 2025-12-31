@@ -21,7 +21,7 @@ func (h *HTTPHandlers) HandleCreateTask(w http.ResponseWriter, r *http.Request) 
 	var todo = todo.NewTask("fgshsh", "sggs")
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewDecoder(r).Decode(&todo); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&todo); err != nil {
 		errdto := NewErorDto(err.Error())
 
 		w.Header().Set("Content-Type", "application/json")
