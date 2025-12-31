@@ -18,9 +18,9 @@ func NewHTTPHandlers(todo *todo.List) *HTTPHandlers {
 }
 
 func (h *HTTPHandlers) HandleCreateTask(w http.ResponseWriter, r *http.Request) {
-	var todo = todo.NewTask("fgshsh", "sggs")
+	var todo = todo.NewTask("", "")
 
-	w.Header().Set("Content-Type", "application/json")
+	// Можно опустить эту строку, но без неё ответ не будет явно в формате JSON.
 	if err := json.NewDecoder(r.Body).Decode(&todo); err != nil {
 		errdto := NewErorDto(err.Error())
 
