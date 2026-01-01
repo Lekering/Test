@@ -20,12 +20,16 @@ type User struct {
 
 var users []User
 
-func home2Handler(w http.ResponseWriter, r *http.Request) {
-	// Эта строка устанавливает заголовок ответа Content-Type в значение "application/json",
-	// чтобы клиент понял, что ответ содержит JSON-данные
+// jsonResponse устанавливает Content-Type и кодирует данные в JSON
+func jsonResponse(w http.ResponseWriter, statusCode int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	// Эта строка кодирует структуру Response в JSON и отправляет клиенту как ответ.
-	json.NewEncoder(w).Encode(Response{Message: "Добро пожаловать в API"})
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(data)
+}
+
+func home2Handler(w http.ResponseWriter, r *http.Request) {
+	// Используем helper функцию для отправки JSON ответа
+	jsonResponse(w, http.StatusOK, Response{Message: "Добро пожаловать в API"})
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
@@ -35,19 +39,20 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	var user User
+	// json.NewDecoder(r.Body).Decode(&user) - создает новый декодер, который читает JSON из тела запроса r.Body,
+	// и декодирует его в структуру user (заполняет ее полями из запроса).
 	json.NewDecoder(r.Body).Decode(&user)
 	user.ID = len(users) + 1
 	users = append(users, user)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(user)
+	// Используем helper функцию вместо ручной установки заголовков
+	jsonResponse(w, http.StatusCreated, user)
 }
 
 func main() {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/", home2Handler).Methods("GET")
+	r.HandleFunc("/", createUserHandler).Methods("GET")
 
 	http.ListenAndServe(":8080", r)
 }

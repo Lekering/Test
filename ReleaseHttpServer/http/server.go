@@ -9,3 +9,7 @@ func NewHTTPServer(hand *HTTPHandlers) *HTTPServer {
 		HTTPHandlers: hand,
 	}
 }
+
+func (h *HTTPServer) startServer() {
+
+}

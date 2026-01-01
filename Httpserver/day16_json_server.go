@@ -31,7 +31,7 @@ var users = []User{
 func getUsersHandler(w http.ResponseWriter, r *http.Request) {
 	// Устанавливаем заголовок Content-Type
 	w.Header().Set("Content-Type", "application/json")
-	
+
 	// Кодируем users в JSON и отправляем
 	json.NewEncoder(w).Encode(users)
 }
@@ -39,7 +39,7 @@ func getUsersHandler(w http.ResponseWriter, r *http.Request) {
 // Получить конкретного пользователя по ID
 func getUserHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	
+
 	// Получаем ID из параметра: /user?id=1
 	idParam := r.URL.Query().Get("id")
 	if idParam == "" {
@@ -50,7 +50,7 @@ func getUserHandler(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	
+
 	// Ищем пользователя
 	var foundUser *User
 	for _, user := range users {
@@ -59,7 +59,7 @@ func getUserHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
-	
+
 	if foundUser == nil {
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(ErrorResponse{
@@ -68,14 +68,14 @@ func getUserHandler(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	
+
 	json.NewEncoder(w).Encode(foundUser)
 }
 
 // Создать нового пользователя
 func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	
+
 	// Проверяем метод запроса
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -85,7 +85,7 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	
+
 	// Декодируем JSON из тела запроса
 	var newUser User
 	err := json.NewDecoder(r.Body).Decode(&newUser)
@@ -97,11 +97,11 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	
+
 	// Генерируем ID (в реальности это делает БД)
 	newUser.ID = len(users) + 1
 	users = append(users, newUser)
-	
+
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(newUser)
 }
@@ -110,13 +110,13 @@ func main() {
 	http.HandleFunc("/users", getUsersHandler)
 	http.HandleFunc("/user", getUserHandler)
 	http.HandleFunc("/user/create", createUserHandler)
-	
+
 	fmt.Println("Сервер запущен на http://localhost:8080")
 	fmt.Println("\nПопробуйте:")
 	fmt.Println("GET  http://localhost:8080/users")
 	fmt.Println("GET  http://localhost:8080/user?id=1")
 	fmt.Println("POST http://localhost:8080/user/create")
-	
+
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
