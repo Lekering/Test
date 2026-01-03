@@ -28,3 +28,8 @@ func (t *Task) Done() {
 	t.IsDone = true
 	t.DoneAt = &doneTime
 }
+
+func (t *Task) UnDone() {
+	t.IsDone = false
+	t.DoneAt = nil
+}

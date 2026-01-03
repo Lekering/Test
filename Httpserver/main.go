@@ -21,7 +21,7 @@ type User struct {
 var users []User
 
 // jsonResponse устанавливает Content-Type и кодирует данные в JSON
-func jsonResponse(w http.ResponseWriter, statusCode int, data interface{}) {
+func jsonResponse(w http.ResponseWriter, statusCode int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(data)
@@ -39,9 +39,18 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	var user User
-	// json.NewDecoder(r.Body).Decode(&user) - создает новый декодер, который читает JSON из тела запроса r.Body,
-	// и декодирует его в структуру user (заполняет ее полями из запроса).
-	json.NewDecoder(r.Body).Decode(&user)
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		jsonResponse(w, http.StatusBadRequest, Response{Message: "Некорректный JSON"})
+		return
+	}
+
+	// Простой валидатор: проверим, что имя и email не пустые
+	if user.Name == "" || user.Email == "" {
+		jsonResponse(w, http.StatusBadRequest, Response{Message: "Имя и Email обязательны"})
+		return
+	}
+
 	user.ID = len(users) + 1
 	users = append(users, user)
 
@@ -51,8 +60,9 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	r := mux.NewRouter()
-
-	r.HandleFunc("/", createUserHandler).Methods("GET")
+	r.HandleFunc("/", homeHandler).Methods("GET")
+	r.HandleFunc("/welcome", home2Handler).Methods("GET")
+	r.HandleFunc("/users", createUserHandler).Methods("POST")
 
 	http.ListenAndServe(":8080", r)
 }
