@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List - Управление задачами</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 Мой список задач</h1>
+            <p class="subtitle">Организуйте свою работу эффективно</p>
+        </header>
+
+        <div class="task-form-container">
+            <form id="taskForm" class="task-form">
+                <div class="form-group">
+                    <input 
+                        type="text" 
+                        id="taskTitle" 
+                        placeholder="Название задачи" 
+                        required
+                        class="form-input"
+                    >
+                </div>
+                <div class="form-group">
+                    <textarea 
+                        id="taskDescription" 
+                        placeholder="Описание задачи" 
+                        required
+                        class="form-textarea"
+                    ></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    ➕ Добавить задачу
+                </button>
+            </form>
+        </div>
+
+        <div class="filter-container">
+            <button id="showAll" class="filter-btn active">Все задачи</button>
+            <button id="showActive" class="filter-btn">Активные</button>
+        </div>
+
+        <div id="tasksContainer" class="tasks-container">
+            <div class="loading" id="loading">Загрузка задач...</div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
+
