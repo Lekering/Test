@@ -1,109 +1,56 @@
 package todo
 
 import (
-	"errors"
-	"maps"
-	"sync"
+	"context"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type List struct {
-	tasks map[string]Task
-	mtx   sync.RWMutex
+	repo *Repository
+	ctx  context.Context
 }
 
-func NewList() *List {
+func NewList(ctx context.Context, conn *pgx.Conn) *List {
 	return &List{
-		make(map[string]Task),
-		sync.RWMutex{},
+		repo: NewRepository(conn),
+		ctx:  ctx,
 	}
 }
 
-func (l *List) AddTask(taks Task) error {
-	l.mtx.Lock()
-	defer l.mtx.Unlock()
-
-	_, ok := l.tasks[taks.Title]
-	if ok {
-		return ErrorTaskAlreadyExist
-	}
-	l.tasks[taks.Title] = taks
-	return nil
+func (l *List) AddTask(task Task) error {
+	return l.repo.AddTask(l.ctx, task)
 }
 
 func (l *List) GetTasks(title string) (Task, error) {
-	l.mtx.RLock()
-	defer l.mtx.RUnlock()
-
-	if task, ok := l.tasks[title]; !ok {
-		return Task{}, errors.New("Task not found")
-	} else {
-		return task, nil
-	}
+	return l.repo.GetTask(l.ctx, title)
 }
 
 func (l *List) ListTasks() map[string]Task {
-	l.mtx.RLock()
-	defer l.mtx.RUnlock()
-
-	fakeList := make(map[string]Task, len(l.tasks))
-
-	maps.Copy(fakeList, l.tasks)
-	return fakeList
+	tasks, err := l.repo.ListTasks(l.ctx)
+	if err != nil {
+		return make(map[string]Task)
+	}
+	return tasks
 }
 
 // NotDoneTasks возвращает все задачи, которые еще не выполнены (IsDone == false).
 func (l *List) NotDoneTasks() map[string]Task {
-	l.mtx.RLock()
-	defer l.mtx.RUnlock()
-
-	notDoneTasks := make(map[string]Task)
-
-	for title, task := range l.tasks {
-		if !task.IsDone {
-			notDoneTasks[title] = task
-		}
+	tasks, err := l.repo.NotDoneTasks(l.ctx)
+	if err != nil {
+		return make(map[string]Task)
 	}
-	return notDoneTasks
+	return tasks
 }
 
 func (l *List) DoneTasks(title string) (Task, error) {
-	l.mtx.Lock()
-	defer l.mtx.Unlock()
-
-	task, ok := l.tasks[title]
-	if !ok {
-		return Task{}, ErrorTaskNotFound
-	}
-
-	task.Done()
-	l.tasks[title] = task
-	return task, nil
+	return l.repo.UpdateTaskDone(l.ctx, title, true)
 }
 
 func (l *List) UnDoneTasks(title string) (Task, error) {
-	l.mtx.Lock()
-	defer l.mtx.Unlock()
-
-	task, ok := l.tasks[title]
-	if !ok {
-		return Task{}, ErrorTaskNotFound
-	}
-
-	task.UnDone()
-	l.tasks[title] = task
-	return task, nil
+	return l.repo.UpdateTaskDone(l.ctx, title, false)
 }
 
 func (l *List) DeleteTask(title string) error {
-	l.mtx.Lock()
-	defer l.mtx.Unlock()
-
-	_, ok := l.tasks[title]
-	if !ok {
-		return ErrorTaskNotFound
-	}
-
-	delete(l.tasks, title)
-
-	return nil
+	return l.repo.DeleteTask(l.ctx, title)
 }

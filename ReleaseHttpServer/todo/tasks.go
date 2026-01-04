@@ -21,15 +21,3 @@ func NewTask(titel string, descrition string) Task {
 		DoneAt:   nil,
 	}
 }
-
-func (t *Task) Done() {
-	doneTime := time.Now()
-
-	t.IsDone = true
-	t.DoneAt = &doneTime
-}
-
-func (t *Task) UnDone() {
-	t.IsDone = false
-	t.DoneAt = nil
-}
