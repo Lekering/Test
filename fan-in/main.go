@@ -20,8 +20,8 @@ func main() {
 		for i := range 1000 {
 			time.Sleep(time.Second)
 			chan1in <- i
-			chan2in <- i + 1
-			chan3in <- i + 2
+			chan2in <- i + 10
+			chan3in <- i + 100
 		}
 	}()
 
