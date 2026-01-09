@@ -21,9 +21,9 @@ func main() {
 
 	for i, out := range outChans {
 		wg.Add(1)
-		sleepDuration := time.Millisecond * 200
+		sleepDuration := time.Millisecond * 1000
 		if i == 1 {
-			sleepDuration = time.Millisecond * 100
+			sleepDuration = time.Millisecond * 500
 		}
 		go func(out <-chan int, sleep time.Duration) {
 			defer wg.Done()
@@ -54,18 +54,13 @@ func SplitChan[T any](in <-chan T, n int) []chan T {
 		}()
 		for v := range in {
 			for _, c := range outChans {
-				select {
-				case c <- v:
-				default: // prevent goroutine block if receiver is slow
-					wg.Add(1)
-					go func(val T, ch chan T) {
-						defer wg.Done()
-						ch <- val
-					}(v, c)
-				}
+				wg.Add(1)
+				go func(val T, ch chan T) {
+					defer wg.Done()
+					ch <- val
+				}(v, c)
 			}
 		}
 	}()
-
 	return outChans
 }
