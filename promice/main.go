@@ -52,7 +52,7 @@ func main() {
 	chanWait := make(chan struct{})
 	prom.Then(
 		func(i int) {
-			fmt.Println("Number")
+			fmt.Println("Number", i)
 			close(chanWait)
 		},
 		func(err error) {
