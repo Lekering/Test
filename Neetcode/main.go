@@ -7,16 +7,9 @@ import (
 
 func main() {
 
-	wg := &sync.WaitGroup{}
-	ch := make(chan int, 20) // буферизованный канал на 20 элементов
-	for i := range 20 {
-		ch <- i
-	}
-	close(ch)
-	wg.Add(2)
-	go consumer(wg, ch)
-	go consumer(wg, ch)
-	wg.Wait()
+	arr := []int{-8, -6, 0, 2, 4, 5, 12}
+	fmt.Printf("squares(arr): %v\n", Squares(arr))
+
 }
 
 func Revers(array []int) {
