@@ -6,10 +6,10 @@ import (
 )
 
 func main() {
-
-	arr := []int{-8, -6, 0, 2, 4, 5, 12}
-	fmt.Printf("squares(arr): %v\n", Squares(arr))
-
+	arr := [][]int{{1, 2, 3, 4, 5},
+		{6, 7, 8, 9, 10},
+	}
+	Binary2dMatrix(arr, 6)
 }
 
 func Revers(array []int) {
