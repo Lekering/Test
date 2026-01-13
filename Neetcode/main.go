@@ -6,10 +6,9 @@ import (
 )
 
 func main() {
-
-	arr := []int{-8, -6, 0, 2, 4, 5, 12}
-	fmt.Printf("squares(arr): %v\n", Squares(arr))
-
+	a := "AAABABB"
+	k := 1
+	characterReplacement(a, k)
 }
 
 func Revers(array []int) {
