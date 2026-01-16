@@ -6,9 +6,7 @@ import (
 )
 
 func main() {
-	a := "AAABABB"
-	k := 1
-	characterReplacement(a, k)
+	fmt.Printf("generateParenthesis(3): %v\n", generateParenthesis(3))
 }
 
 func Revers(array []int) {

@@ -1,6 +1,6 @@
 package main
 
-func isValid(s string) bool {
+func sValid(s string) bool {
 	stack := []rune{}
 
 	for _, r := range s {
