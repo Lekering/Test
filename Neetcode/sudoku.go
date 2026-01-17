@@ -5,13 +5,13 @@ func isValidSudoku(board [][]byte) bool {
 	cols := make([]map[byte]struct{}, 9)
 	boxes := make([]map[byte]struct{}, 9)
 
-	for i := 0; i < 9; i++ {
+	for i := range 9 {
 		rows[i] = make(map[byte]struct{})
 		cols[i] = make(map[byte]struct{})
 		boxes[i] = make(map[byte]struct{})
 	}
 
-	for i := 0; i < 9; i++ {
+	for i := range 9 {
 		for j := 0; j < 9; j++ {
 			val := board[i][j]
 			if val == '.' {
