@@ -1,13 +1,5 @@
 package main
 
-// Функция isValidSudoku проверяет, является ли данная доска судоку валидной
-// В чем возможная проблема в этом коде:
-// В выражении: rows[i][val] == struct{}{}
-// В Go проверка значения в map с value-struct{} таким образом НЕ даст true/false наличия ключа,
-// а скорее проверяет конкретное значение value для ключа, который может вообще не существовать,
-// но это всегда даст false, если ключа нет (и nil-значение struct{}{} не stored, а zero value struct{}{}).
-// Правильнее использовать запятую-ок ("ок-идиому"):
-
 func isValidSudoku(board [][]byte) bool {
 	rows := make([]map[byte]struct{}, 9)
 	cols := make([]map[byte]struct{}, 9)
