@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	fmt.Printf("generateParenthesis(3): %v\n", generateParenthesis(3))
+	fmt.Printf("longestCommonPrefix([]string{\"flower\", \"flow\", \"flight\"}): %v\n", longestCommonPrefix([]string{"flower", "flow", "flight"}))
 }
 
 func Revers(array []int) {

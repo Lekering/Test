@@ -2,7 +2,7 @@ package main
 
 import "sort"
 
-func Sum(nums []int) [][]int {
+func Sum(nums ...int) [][]int {
 	res := [][]int{}
 	sort.Ints(nums)
 
