@@ -18,6 +18,11 @@ func main() {
 		{'.', '.', '.', '.', '8', '.', '.', '7', '9'},
 	}
 	fmt.Println(isValidSudoku(board))
+
+	arr := []int{1, 2, 3, 4, 5}
+	arr1 := arr[0:5]
+	arr2 := arr[2:4]
+	fmt.Println(arr1, arr2)
 }
 
 func Revers(array []int) {
