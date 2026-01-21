@@ -8,7 +8,7 @@ import (
 func main() {
 
 	nums := []int{1, 2, 3, 4, 5}
-	fmt.Printf("Findnum(nums, 1, 3): %v\n", Findnum(nums, 1, 3))
+	rotate(nums, 3)
 }
 
 func Revers(array []int) {
