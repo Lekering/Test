@@ -8,7 +8,7 @@ type Data struct {
 
 func New(raw []int) (*Data, error) {
 	if len(raw) == 0 {
-		return nil, errors.New("Lens raw = 0")
+		return nil, errors.New("lens raw = 0")
 	}
 
 	prefix := make([]int, len(raw)+1)
