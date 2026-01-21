@@ -1,22 +1,22 @@
 package main
 
 func sValid(s string) bool {
+	parenMap := map[rune]rune{
+		')': '(',
+		'}': '{',
+		']': '[',
+	}
 	stack := []rune{}
-
 	for _, r := range s {
-		switch r {
-		case '(', '{', '[':
+		// Если открывающая скобка — добавляем в стек
+		if r == '(' || r == '{' || r == '[' {
 			stack = append(stack, r)
-		case ')', '}', ']':
-			if len(stack) == 0 {
+		} else if open, ok := parenMap[r]; ok {
+			// r — закрывающая скобка; проверяем соответствие со стеком
+			if len(stack) == 0 || stack[len(stack)-1] != open {
 				return false
 			}
-			last := stack[len(stack)-1]
-			if (r == ')' && last != '(') ||
-				(r == '}' && last != '{') ||
-				(r == ']' && last != '[') {
-				return false
-			}
+			// снимаем верхнюю скобку
 			stack = stack[:len(stack)-1]
 		}
 	}
