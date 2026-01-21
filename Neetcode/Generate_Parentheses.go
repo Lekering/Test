@@ -2,6 +2,8 @@ package main
 
 // Эта функция генерирует все возможные корректные строки из n пар скобок.
 // Вот что происходит поэтапно:
+//
+//nolint:unused // Решение задачи, используется для обучения
 func generateParenthesis(n int) []string {
 	var solve func(open, close int, temp string)
 	ans := []string{}

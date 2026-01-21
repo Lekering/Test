@@ -6,6 +6,8 @@ import (
 
 // Оптимизированная версия: O(n) время, O(1) память
 // Используем два указателя без создания промежуточного массива
+//
+//nolint:unused // Решение задачи, используется для обучения
 func isPalindrome(s string) bool {
 	strRune := []rune(s)
 
@@ -27,6 +29,7 @@ func isPalindrome(s string) bool {
 	return true
 }
 
+//nolint:unused // Вспомогательная функция для isPalindrome
 func isVal(r rune) bool {
 	return unicode.IsDigit(r) || unicode.IsLetter(r)
 }
