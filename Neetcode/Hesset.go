@@ -4,7 +4,7 @@ type MyHashSet struct {
 	date []bool
 }
 
-func Constructor() MyHashSet {
+func NewMyHashSet() MyHashSet {
 	return MyHashSet{date: make([]bool, 100001)}
 }
 

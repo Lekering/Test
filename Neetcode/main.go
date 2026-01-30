@@ -7,8 +7,10 @@ import (
 
 func main() {
 
-	nums := []int{1, 2, 3, 4, 5}
-	rotate(nums, 3)
+	target := 10
+	arr := []int{1, 2, 1}
+	minSubArrayLen(target, arr)
+
 }
 
 func Revers(array []int) {
