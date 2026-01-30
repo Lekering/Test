@@ -152,15 +152,15 @@ func LongWork() int {
 }
 
 func WrapperWithContext(ctx context.Context, task func() int) (int, error) {
-	chanresout := make(chan int)
+	chanresout := make(chan int, 1)
 
 	go func() {
-
-		res := LongWork()
-
+		res := task()
 		select {
 		case chanresout <- res:
-		default:
+			// sent result successfully
+		case <-ctx.Done():
+			// Context cancelled, do not block forever
 		}
 	}()
 
@@ -193,5 +193,27 @@ func Wrapper(timeout time.Duration, task func() int) (*int, error) {
 	case <-timechan:
 		return nil, errors.New("SUCK")
 
+	}
+}
+
+func SLEEEEEEEP() int {
+	time.Sleep(time.Duration(rand.Intn(100)) * time.Second)
+	return 129
+}
+
+func run(f func() int) <-chan int {
+	ch := make(chan int, 1)
+	go func() {
+		ch <- f()
+	}()
+	return ch
+}
+
+func wrap(ctx context.Context, f func() <-chan int) int {
+	select {
+	case v := <-f():
+		return v
+	case <-ctx.Done():
+		return 0
 	}
 }
