@@ -25,3 +25,9 @@ func Test_longestConsecutive(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkStreek(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		longestConsecutive(1, 2, 3, 4, 1, 2)
+	}
+}

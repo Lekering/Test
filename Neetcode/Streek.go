@@ -1,7 +1,5 @@
 package main
 
-import "fmt"
-
 func longestConsecutive(nums ...int) int {
 	res := 0
 	if len(nums) == 0 {
@@ -29,6 +27,5 @@ func longestConsecutive(nums ...int) int {
 			res = streek
 		}
 	}
-	fmt.Println(res)
 	return res
 }
